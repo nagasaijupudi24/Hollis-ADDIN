@@ -131,4 +131,5 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 <img src="https://pnptelemetry.azurewebsites.net/pnp-officeaddins/samples/office-add-in-sso-naa" />
 #   H o l l i s - A D D I N  
+ #   H o l l i s - A D D I N  
  
