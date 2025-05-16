@@ -12,16 +12,25 @@ import { PublicClientNext, type IPublicClientApplication } from "@azure/msal-bro
 export { AccountManager };
 
 
+
+
 const applicationId = "85ed8118-0d07-4915-9710-6202f07c91eb"//hollis
 const msalConfig = {
   auth: {
+
     clientId: applicationId,
     authority: "https://login.microsoftonline.com/c957560e-8fc9-444a-9cde-bfd3129e36ad", //hollis
 
+   
 
     supportsNestedAppAuth: true,
   },
+   cache: {
+    cacheLocation: "localStorage",
+  },
 };
+
+export let username = "";
 
 // Encapsulate functions for getting user account and token information.
 class AccountManager {
@@ -30,10 +39,15 @@ class AccountManager {
   // Initialize MSAL public client application.
   async initialize() {
     this.pca = await PublicClientNext.createPublicClientApplication(msalConfig);
+  
   }
 
-  async ssoGetToken(scopes: string[]) {
-    const userAccount = await this.ssoGetUserIdentity(scopes);
+
+  
+
+  async ssoGetToken(scopes:any) {
+    const userAccount:any = await this.ssoGetUserIdentity(scopes);
+    // console.log(userAccount)
     return userAccount.accessToken;
   }
 
@@ -49,9 +63,13 @@ class AccountManager {
     }
 
     // Specify minimum scopes needed for the access token.
-    const tokenRequest = {
-      scopes: scopes
+    const activeAccount = this.pca.getActiveAccount();
+    // console.log(activeAccount)
+    const tokenRequest:any = {
+      scopes: scopes,
+       account: this.pca.getAllAccounts()[0]
     };
+    
 
     try {
       // console.log("Trying to acquire token silently...");
@@ -71,7 +89,7 @@ class AccountManager {
     } catch (popupError) {
       // Acquire token interactive failure.
       // console.log(`Unable to acquire token interactively: ${popupError}`);
-      throw new Error(`Unable to acquire access token: ${popupError}`);
+      // throw new Error(`Unable to acquire access token: ${popupError}`);
     }
   }
 }

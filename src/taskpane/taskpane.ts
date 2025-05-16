@@ -239,6 +239,9 @@ const fetchMatchingProjects = async (searchTerm: any) => {
 
 searchInputProject.addEventListener("keyup", filterOptionsProject); 
 searchInputProject.addEventListener("click", showDropdownProject);
+searchInputProject.addEventListener("focus", ()=>{
+  dropdownListTask.style.display = 'none'
+});
 searchInputTask.addEventListener("keyup", filterOptionsTask);
 searchInputTask.addEventListener("click", () => {
   dropdownListTask.style.display = "block";
@@ -252,9 +255,16 @@ searchInputTask.addEventListener("blur", () => {
   taskError.textContent = "";
 });
 
+searchInputTask.addEventListener("focus", ()=>{
+  dropdownListProject.style.display = 'none'
+});
+
 searchInputProject.addEventListener("keyup", (event: any) => {
   const searchTerm = event.target.value;
   fetchMatchingProjects(searchTerm);
+  if (searchTerm === ''){
+    fetchProject(token)
+  }
 });
 
 
@@ -327,6 +337,8 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
 
 
 
+
+
 function populateDropdown(options: any[]) {
   // console.log(options)
   dropdownListProject.innerHTML = "";
@@ -341,6 +353,7 @@ function populateDropdown(options: any[]) {
       searchInputProject.value = option.text;
       selectedProjectName = option.text
       dropdownListProject.style.display = "none";
+      // dropdownListTask.style.display = "none"
       fetchProjectTasks(option.value); // Fetch tasks for selected project
       selectedProjectIdNew = option.value;
       searchInputTask.value = "";
@@ -445,6 +458,13 @@ async function fetchOptions(token: any) {
 
 let host:any ;
 
+  const tokenRequestUserProfile = {
+    scopes: ["User.Read"],
+  };
+
+
+   
+
 
 
 Office.onReady(async (info) => {
@@ -459,6 +479,30 @@ Office.onReady(async (info) => {
     
     // console.log("entered in host:",info.host)
     await accountManager.initialize()
+
+  //    const userAccount = await accountManager.ssoGetUserIdentity(["user.read"]);
+  //   const idTokenClaims = userAccount.idTokenClaims as { name?: string; preferred_username?: string };
+  //     console.log(userAccount)
+  //   console.log(userAccount.accessToken);
+
+
+  //    const response = await fetch(`https://graph.microsoft.com/v1.0/me`, {
+  //   headers: { Authorization: userAccount.accessToken },
+  // });
+
+  // if (response.ok) {
+  //   // Get the user name from response JSON.
+  //   const data = await response.json();
+  //   const name = data.displayName;
+
+  //   if (name) {
+  //     console.log("You are now signed in as " + name + ".");
+  //   }
+  // } else {
+  //   const errorText = await response.text();
+  //   console.log("Microsoft Graph call failed - error text: " + errorText);
+  // }
+
 
     const accessToken2 = await accountManager.ssoGetToken(["https://hollis-projectops-dev-01.api.crm4.dynamics.com/user_impersonation"]); //Hollis scope
     // console.log("Access token2: ", accessToken2);

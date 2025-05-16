@@ -25,7 +25,7 @@ export async function makeGraphRequest(accessToken: string, path: string, queryP
 
   if (response.ok) {
     const data = await response.json();
-    // console.log(data);
+    console.log(data);
     return data;
   } else {
     throw new Error(response.statusText);
