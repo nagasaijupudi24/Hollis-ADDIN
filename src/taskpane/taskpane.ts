@@ -34,6 +34,9 @@ let pca = undefined;
 let isPCAInitialized = false;
 let token: any;
 
+let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
+// https://hollis-projectops-dev-01.api.crm4.dynamics.com
+
 let options: any[] = [];
 let dropdownListProject:any = document.getElementById("dropdownListForProject");
 let dropdownListTask:any = document.getElementById("dropdownListForTask");
@@ -79,7 +82,7 @@ internal.addEventListener('click',()=>{
 
 
 async function getProjectById(projectId: any) {
-  const url = `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.2/msdyn_projects(${projectId})?$select=msdyn_subject,msdyn_projectid`;
+  const url = `${domain}/api/data/v9.2/msdyn_projects(${projectId})?$select=msdyn_subject,msdyn_projectid`;
 
   try {
     const response = await fetch(url, {
@@ -181,7 +184,7 @@ const fetchMatchingProjects = async (searchTerm: any) => {
 
   try {
     const projectsResponse = await fetch(
-      `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$filter=contains(msdyn_subject, '${searchTerm}')`,
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$filter=contains(msdyn_subject, '${searchTerm}')`,
       {
         method: "GET",
         headers: {
@@ -275,7 +278,7 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
   // console.log(selectedProjectId,"fetching project task")
   try {
     const responseProjectTask = await fetch(
-      `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.0/msdyn_projecttasks?$select=msdyn_subject,_msdyn_project_value&$filter=_msdyn_project_value eq '${selectedProjectId}'`,
+      `${domain}/api/data/v9.0/msdyn_projecttasks?$select=msdyn_subject,_msdyn_project_value&$filter=_msdyn_project_value eq '${selectedProjectId}'`,
       {
         method: "GET",
         headers: {
@@ -294,7 +297,7 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
       });
 
     let response:any = await fetch(
-      `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.0/msdyn_projecttasks?$select=msdyn_subject,_msdyn_project_value&$filter=_msdyn_project_value eq '${selectedProjectId}'`,
+      `${domain}/api/data/v9.0/msdyn_projecttasks?$select=msdyn_subject,_msdyn_project_value&$filter=_msdyn_project_value eq '${selectedProjectId}'`,
       {
         method: "GET",
         headers: {
@@ -373,7 +376,7 @@ async function fetchProject(accessToken:any) {
   try {
     
     const projectsResponse = await fetch(
-      "https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$top=20",
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$top=20`,
       {
         method: "GET",
         headers: {
@@ -420,7 +423,7 @@ async function fetchOptions(token: any) {
   // console.log("function called");
   try {
     const response = await fetch(
-      "https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.0/EntityDefinitions(LogicalName='msdyn_timeentry')/Attributes(LogicalName='hollis_projecttype')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet",
+      `${domain}/api/data/v9.0/EntityDefinitions(LogicalName='msdyn_timeentry')/Attributes(LogicalName='hollis_projecttype')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet`,
       {
         method: "GET",
         headers: {
@@ -504,7 +507,7 @@ Office.onReady(async (info) => {
   // }
 
 
-    const accessToken2 = await accountManager.ssoGetToken(["https://hollis-projectops-dev-01.api.crm4.dynamics.com/user_impersonation"]); //Hollis scope
+    const accessToken2 = await accountManager.ssoGetToken([`${domain}/user_impersonation`]); //Hollis scope
     // console.log("Access token2: ", accessToken2);
     token = accessToken2
 
@@ -795,7 +798,8 @@ async function createFieldValues() {
   // console.log(newEntryPayload);
   try {
     const response = await fetch(
-      `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.2/msdyn_timeentries`,
+      // `https://hollis-projectops-dev-01.api.crm4.dynamics.com/api/data/v9.2/msdyn_timeentries`,
+      `${domain}/api/data/v9.2/msdyn_timeentries`,
       {
         method: "POST",
         headers: {
