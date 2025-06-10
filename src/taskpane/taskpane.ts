@@ -472,6 +472,7 @@ let host:any ;
 
 Office.onReady(async (info) => {
   host = info.host
+  console.log(Office.context)
   switch (info.host) {
     case Office.HostType.Excel:
     case Office.HostType.PowerPoint:
