@@ -36,75 +36,76 @@ let isPCAInitialized = false;
 let token: any;
 
 // let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
-let domain:any = "https://hollis-projectops-dev-01.api.crm4.dynamics.com";
+let domain: any = "https://hollis-projectops-dev-01.api.crm4.dynamics.com";
 // https://hollis-projectops-dev-01.api.crm4.dynamics.com
 
 let options: any[] = [];
-let dropdownListProject:any = document.getElementById("dropdownListForProject");
-let dropdownListTask:any = document.getElementById("dropdownListForTask");
-let searchInputProject:any = document.getElementById("searchInputForProject");
-let searchInputTask:any = document.getElementById("searchInputForTask");
-let projectError:any = document.getElementById("projectError");
-let taskError:any = document.getElementById("taskError");
-let duration:any = document.getElementById("duration")
-let durationError:any = document.getElementById("durationError")
-let insertButton:any = document.getElementById("insertTimeEntry")
-let insertError:any = document.getElementById("insertError");
-let date:any = document.getElementById("date")
-let dateError:any = document.getElementById("dateError")
-let description:any = document.getElementById("description")
-let descriptionTextarea:any = document.getElementById("descriptionTextarea")
-let DescriptionError:any = document.getElementById("DescriptionError")
+let dropdownListProject: any = document.getElementById("dropdownListForProject");
+let dropdownListTask: any = document.getElementById("dropdownListForTask");
+let searchInputProject: any = document.getElementById("searchInputForProject");
+let searchInputTask: any = document.getElementById("searchInputForTask");
+let projectError: any = document.getElementById("projectError");
+let taskError: any = document.getElementById("taskError");
+let duration: any = document.getElementById("duration")
+let durationDropdown: any = document.getElementById("durationDropdown");
+let durationError: any = document.getElementById("durationError")
+let insertButton: any = document.getElementById("insertTimeEntry")
+let insertError: any = document.getElementById("insertError");
+let date: any = document.getElementById("date")
+let dateError: any = document.getElementById("dateError")
+let description: any = document.getElementById("description")
+let descriptionTextarea: any = document.getElementById("descriptionTextarea")
+let DescriptionError: any = document.getElementById("DescriptionError")
 let currentAction = 0;
 
 
- const MAX_DURATION = 1440;
-    const MAX_DIGITS = 4; // 1440 has 4 digits
+const MAX_DURATION = 1440;
+const MAX_DIGITS = 4; // 1440 has 4 digits
 
-let projectnameArray:any = [];
-let projectTaskArr:any = [];
+let projectnameArray: any = [];
+let projectTaskArr: any = [];
 
-let projectType:any = "Client"
+let projectType: any = "Client"
 
 
 
-let clearProjectandProjectTaskField = ()=>{
+let clearProjectandProjectTaskField = () => {
   //project and id set to empty 
   selectedProjectName = '';
   selectedProjectIdNew = '';
 
-  
+
   //project Task and id set to empyt 
 
   selectedProjectTaskName = '';
   selectedProjectTaskIdNew = ''
 
- 
+
 
   //input field clearing 
   searchInputTask.value = ''
   searchInputProject.value = ''
-  
+
 }
 
 
-let client:any = document.getElementById("client")
-let internal:any = document.getElementById("internal")
+let client: any = document.getElementById("client")
+let internal: any = document.getElementById("internal")
 
 //Intial buttons positions
 
 client.disabled = true; // Disable the button after click
 internal.disabled = false;
 
-client.addEventListener('click',()=>{
+client.addEventListener('click', () => {
   console.log("client")
-  
+
   client.classList.add("active", "toggle-btn")
   internal.classList.remove("active");
 
-  
 
-  projectType ='Client'
+
+  projectType = 'Client'
 
   clearProjectandProjectTaskField()
 
@@ -115,9 +116,9 @@ client.addEventListener('click',()=>{
 })
 
 
-internal.addEventListener('click',()=>{
+internal.addEventListener('click', () => {
   console.log("internal")
- 
+
   internal.classList.add("active", "toggle-btn")
   client.classList.remove("active");
   projectType = 'Internal'
@@ -128,10 +129,14 @@ internal.addEventListener('click',()=>{
 
   //disabling current button and enabling the other button 
 
-   internal.disabled = true; // Disable the button after click
-  client.disabled  = false; // Enable the other button if needed
+  internal.disabled = true; // Disable the button after click
+  client.disabled = false; // Enable the other button if needed
 
 })
+
+durationDropdown.addEventListener("change", function (event: any) {
+  console.log("User selected:", event.target.value);
+});
 
 
 async function getProjectById(projectId: any) {
@@ -158,7 +163,7 @@ async function getProjectById(projectId: any) {
     // console.log("✅ Project Name:", data.msdyn_subject);
     return data;
 
-  } catch (error:any) {
+  } catch (error: any) {
     // console.error("❌ Fetch error:", error.message);
   }
 }
@@ -170,7 +175,7 @@ const populateProjectTaskList = (filteredKeys: { value: any[]; }) => {
     // Clear existing options in selectTaskizeInstance
 
     // Add options dynamically
-    filteredKeys.value.forEach((_project) => {});
+    filteredKeys.value.forEach((_project) => { });
 
     // After adding all options, refresh the dropdown
   } else {
@@ -270,7 +275,7 @@ const fetchMatchingProjects = async (searchTerm: any) => {
 
     // Populate projectInput datalist
 
-    projectsData.value.forEach((_project: any) => {});
+    projectsData.value.forEach((_project: any) => { });
 
     // Refresh dropdown
     // selectizeInstance.refreshOptions(false);
@@ -295,46 +300,46 @@ const fetchMatchingProjects = async (searchTerm: any) => {
   }
 };
 
-searchInputProject.addEventListener("keyup", filterOptionsProject); 
+searchInputProject.addEventListener("keyup", filterOptionsProject);
 searchInputProject.addEventListener("click", showDropdownProject);
-searchInputProject.addEventListener("focus", ()=>{
+searchInputProject.addEventListener("focus", () => {
   dropdownListTask.style.display = 'none'
 });
 
- searchInputProject.addEventListener("focus", () => {
-    dropdownListProject.style.display = "block";
-  });
+searchInputProject.addEventListener("focus", () => {
+  dropdownListProject.style.display = "block";
+});
 
-  searchInputTask.addEventListener("focus", () => {
-    dropdownListTask.style.display = "block";
-  });
+searchInputTask.addEventListener("focus", () => {
+  dropdownListTask.style.display = "block";
+});
 
 
-   document.addEventListener("click", (e) => {
-    if (
-      !dropdownListProject.contains(e.target) &&
-      !searchInputProject.contains(e.target)
-    ) {
-      dropdownListProject.style.display = "none";
-      
-    }
+document.addEventListener("click", (e) => {
+  if (
+    !dropdownListProject.contains(e.target) &&
+    !searchInputProject.contains(e.target)
+  ) {
+    dropdownListProject.style.display = "none";
 
-   if (
-      !dropdownListTask.contains(e.target) &&
-      !searchInputTask.contains(e.target)
-    ) {
-    
-      dropdownListTask.style.display = "none";
-    }
-  });
+  }
 
-searchInputTask.addEventListener("keyup",(event:any)=>{
-   if (event.key === 'Escape') {
-     searchInputTask.blur(); // Removes focus from the input
-     dropdownListTask.style.display='none'
-    }
-    filterOptionsTask()
-} );
+  if (
+    !dropdownListTask.contains(e.target) &&
+    !searchInputTask.contains(e.target)
+  ) {
+
+    dropdownListTask.style.display = "none";
+  }
+});
+
+searchInputTask.addEventListener("keyup", (event: any) => {
+  if (event.key === 'Escape') {
+    searchInputTask.blur(); // Removes focus from the input
+    dropdownListTask.style.display = 'none'
+  }
+  filterOptionsTask()
+});
 searchInputTask.addEventListener("click", () => {
   dropdownListTask.style.display = "block";
 }); // Show task dropdown when clicked
@@ -347,7 +352,7 @@ searchInputTask.addEventListener("blur", () => {
   taskError.textContent = "";
 });
 
-searchInputTask.addEventListener("focus", ()=>{
+searchInputTask.addEventListener("focus", () => {
   dropdownListProject.style.display = 'none'
 });
 
@@ -355,34 +360,34 @@ searchInputProject.addEventListener("keyup", (event: any) => {
   const searchTerm = event.target.value;
   fetchMatchingProjects(searchTerm);
 
-   if (event.key === 'Escape') {
-     searchInputProject.blur(); // Removes focus from the input
-     dropdownListProject.style.display='none'
-    }
-  if (searchTerm === ''){
+  if (event.key === 'Escape') {
+    searchInputProject.blur(); // Removes focus from the input
+    dropdownListProject.style.display = 'none'
+  }
+  if (searchTerm === '') {
     fetchProject(token)
   }
 });
 
 
-duration.addEventListener("keyup", (event: any) => {
- 
+// duration.addEventListener("keyup", (event: any) => {
 
-   if (event.key === 'Escape') {
-     duration.blur(); // Removes focus from the input
-     
-    }
- 
-});
+
+//    if (event.key === 'Escape') {
+//      duration.blur(); // Removes focus from the input
+
+//     }
+
+// });
 
 description.addEventListener("keyup", (event: any) => {
- 
 
-   if (event.key === 'Escape') {
-     description.blur(); // Removes focus from the input
-     
-    }
- 
+
+  if (event.key === 'Escape') {
+    description.blur(); // Removes focus from the input
+
+  }
+
 });
 
 
@@ -411,7 +416,7 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
         // console.log(result,"Project Task value")
       });
 
-    let response:any = await fetch(
+    let response: any = await fetch(
       `${domain}/api/data/v9.0/msdyn_projecttasks?$select=msdyn_subject,_msdyn_project_value&$filter=_msdyn_project_value eq '${selectedProjectId}'`,
       {
         method: "GET",
@@ -424,16 +429,16 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
         },
       }
     )
-    
+
     // console.log(response)
-    if (response.ok){
-      response =await response.json()
-      
+    if (response.ok) {
+      response = await response.json()
+
 
       populateProjectTaskListNew(response.value);
 
 
-    }else{
+    } else {
       taskError.textContent = "Permission denied to access the Project Task Table."
     }
     // .then((result=>{
@@ -461,29 +466,29 @@ function populateDropdown(options: any[]) {
   // console.log(options)
   dropdownListProject.innerHTML = "";
   options.forEach((option) => {
-    console.log(option)
-  const spanElement = document.createElement('span');
-spanElement.textContent = `${option.projectNumber}`;
+    // console.log(option)
+    const spanElement = document.createElement('span');
+    spanElement.textContent = `${option.projectNumber}`;
 
-// Optional styling for the span
-spanElement.style.display = "block";  // Forces it to appear on a new line
-spanElement.style.fontSize = "10px";  // You can adjust this
+    // Optional styling for the span
+    spanElement.style.display = "block";  // Forces it to appear on a new line
+    spanElement.style.fontSize = "10px";  // You can adjust this
 
-let div = document.createElement("div");
-div.id = `${option.value}`;
-div.style.fontSize = "12px";
-div.style.color = "rgb(84, 84, 84)";
+    let div = document.createElement("div");
+    div.id = `${option.value}`;
+    div.style.fontSize = "12px";
+    div.style.color = "rgb(84, 84, 84)";
 
-// Add the option text as a text node (on the first line)
-const textNode = document.createTextNode(option.text);
-div.appendChild(textNode);
+    // Add the option text as a text node (on the first line)
+    const textNode = document.createTextNode(option.text);
+    div.appendChild(textNode);
 
-// Add the span on the second line
-div.appendChild(spanElement);
+    // Add the span on the second line
+    div.appendChild(spanElement);
     div.onclick = function () {
       getProjectById(option.value)
       searchInputProject.value = option.text;
-    
+
       selectedProjectName = option.text
       dropdownListProject.style.display = "none";
       // dropdownListTask.style.display = "none"
@@ -492,35 +497,35 @@ div.appendChild(spanElement);
       searchInputTask.value = "";
     };
     dropdownListProject.appendChild(div);
-    
+
 
   });
 }
 
 
 
-async function fetchProject(accessToken:any) {
+async function fetchProject(accessToken: any) {
 
   // console.log("project fetching called")
-    const projects= await fetch(
-      `${domain}/api/data/v9.2/msdyn_projects`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    ).then(
-      async (data)=>{
-        console.log(await data.json())
-        
-      }
-    )
-  
+  // const projects= await fetch(
+  //   `${domain}/api/data/v9.2/msdyn_projects`,
+  //   {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: `Bearer ${accessToken}`,
+  //     },
+  //   }
+  // ).then(
+  //   async (data)=>{
+  //     console.log(await data.json())
+
+  //   }
+  // )
+
 
 
   try {
-    
+
     const projectsResponse = await fetch(
       `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$top=20`,
       {
@@ -530,13 +535,13 @@ async function fetchProject(accessToken:any) {
         },
       }
     );
-    let newOption:any = [];
+    let newOption: any = [];
     if (projectsResponse.ok) {
       const projectsData = await projectsResponse.json();
       // console.log("Projects data retrieved successfully:", projectsData);
 
-      projectsData.value.forEach((each:any) => {
-        newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject,projectNumber:each.ebecs_projectnumber20characters });
+      projectsData.value.forEach((each: any) => {
+        newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject, projectNumber: each.ebecs_projectnumber20characters });
         projectnameArray.push({ [each.msdyn_projectid]: each.msdyn_subject });
       });
       options = newOption;
@@ -560,7 +565,7 @@ async function fetchProject(accessToken:any) {
   } catch (error) {
     console.error("Dynamics CRM API call failed:", error);
   }
-  
+
 }
 
 
@@ -584,10 +589,10 @@ async function fetchOptions(token: any) {
     const data = await response.json();
 
     if (data && data.OptionSet && data.OptionSet.Options) {
-      const optionsArray :any= []; // Initialize an array to hold the objects
+      const optionsArray: any = []; // Initialize an array to hold the objects
       const options = data.OptionSet.Options;
 
-      options.forEach(function (option:any) {
+      options.forEach(function (option: any) {
         const optionObject = {
           label: option.Label.UserLocalizedLabel.Label,
           value: option.Value,
@@ -605,23 +610,23 @@ async function fetchOptions(token: any) {
   }
 }
 
-let host:any ;
+let host: any;
 
-  const tokenRequestUserProfile = {
-    scopes: ["User.Read"],
-  };
+const tokenRequestUserProfile = {
+  scopes: ["User.Read"],
+};
 
 
-   
+
 
 
 
 Office.onReady(async (info) => {
   host = info.host
-  
-  console.log(Office)
-console.log(Office.context)
-// console.log(Office.context.document.getFilePropertiesAsync())
+
+  //   console.log(Office)
+  // console.log(Office.context)
+  // console.log(Office.context.document.getFilePropertiesAsync())
   switch (info.host) {
     case Office.HostType.Excel:
     case Office.HostType.PowerPoint:
@@ -629,174 +634,174 @@ console.log(Office.context)
     case Office.HostType.Outlook:
       // await getFileNames()
       // await getUserData()
-    
-    // console.log("entered in host:",info.host)
-    await accountManager.initialize()
 
-  //    const userAccount = await accountManager.ssoGetUserIdentity(["user.read"]);
-  //   const idTokenClaims = userAccount.idTokenClaims as { name?: string; preferred_username?: string };
-  //     console.log(userAccount)
-  //   console.log(userAccount.accessToken);
+      // console.log("entered in host:",info.host)
+      await accountManager.initialize()
 
-
-  //    const response = await fetch(`https://graph.microsoft.com/v1.0/me`, {
-  //   headers: { Authorization: userAccount.accessToken },
-  // });
-
-  // if (response.ok) {
-  //   // Get the user name from response JSON.
-  //   const data = await response.json();
-  //   const name = data.displayName;
-
-  //   if (name) {
-  //     console.log("You are now signed in as " + name + ".");
-  //   }
-  // } else {
-  //   const errorText = await response.text();
-  //   console.log("Microsoft Graph call failed - error text: " + errorText);
-  // }
+      //    const userAccount = await accountManager.ssoGetUserIdentity(["user.read"]);
+      //   const idTokenClaims = userAccount.idTokenClaims as { name?: string; preferred_username?: string };
+      //     console.log(userAccount)
+      //   console.log(userAccount.accessToken);
 
 
-    const accessToken2 = await accountManager.ssoGetToken([`${domain}/user_impersonation`]); //Hollis scope
-    // console.log("Access token2: ", accessToken2);
-    token = accessToken2
+      //    const response = await fetch(`https://graph.microsoft.com/v1.0/me`, {
+      //   headers: { Authorization: userAccount.accessToken },
+      // });
 
-   await fetchOptions(accessToken2);
-   await fetchProject(accessToken2)
+      // if (response.ok) {
+      //   // Get the user name from response JSON.
+      //   const data = await response.json();
+      //   const name = data.displayName;
+
+      //   if (name) {
+      //     console.log("You are now signed in as " + name + ".");
+      //   }
+      // } else {
+      //   const errorText = await response.text();
+      //   console.log("Microsoft Graph call failed - error text: " + errorText);
+      // }
 
 
-   let item:any;
+      const accessToken2 = await accountManager.ssoGetToken([`${domain}/user_impersonation`]); //Hollis scope
+      // console.log("Access token2: ", accessToken2);
+      token = accessToken2
 
-   if (info.host===  Office.HostType.Outlook){
-    item = Office.context.mailbox.item;
-
-   
-    
-   }
+      await fetchOptions(accessToken2);
+      await fetchProject(accessToken2)
 
 
-   
-   if (item && item.itemType === Office.MailboxEnums.ItemType.Appointment) {
-    setEventDetails();
-  }
+      let item: any;
 
-      
+      if (info.host === Office.HostType.Outlook) {
+        item = Office.context.mailbox.item;
+
+
+
+      }
+
+
+
+      if (item && item.itemType === Office.MailboxEnums.ItemType.Appointment) {
+        setEventDetails();
+      }
+
+
       break;
   }
 
 
 
   // Function to fetch event details and assign them to the input fields
-function setEventDetails() {
-  const item :any= Office.context.mailbox.item;
+  function setEventDetails() {
+    const item: any = Office.context.mailbox.item;
 
-  // === Description/Subject ===
-  const descriptionField:any = document.querySelector(".description-field");
-  if (descriptionField) {
-    if (typeof item.subject === "string") {
-      // Read mode
-      descriptionField.value = item.subject;
-      descriptionField.disabled = true;
-    } else if (typeof item.subject?.getAsync === "function") {
-      // Edit mode
-      item.subject.getAsync((result:any) => {
-        if (result.status === Office.AsyncResultStatus.Succeeded) {
-          descriptionField.value = result.value;
-          descriptionField.disabled = true;
-        } else {
-          console.error("Failed to fetch subject:", result.error);
-        }
-      });
+    // === Description/Subject ===
+    const descriptionField: any = document.querySelector(".description-field");
+    if (descriptionField) {
+      if (typeof item.subject === "string") {
+        // Read mode
+        descriptionField.value = item.subject;
+        descriptionField.disabled = true;
+      } else if (typeof item.subject?.getAsync === "function") {
+        // Edit mode
+        item.subject.getAsync((result: any) => {
+          if (result.status === Office.AsyncResultStatus.Succeeded) {
+            descriptionField.value = result.value;
+            descriptionField.disabled = true;
+          } else {
+            console.error("Failed to fetch subject:", result.error);
+          }
+        });
+      }
     }
-  }
 
-  // === Start Date ===
-  const eventDateField :any= document.querySelector(".event-date");
-  if (eventDateField) {
-    if (item.start instanceof Date) {
-      // Read mode
-      const formattedStart = item.start.toISOString().split("T")[0];
-      eventDateField.value = formattedStart;
-      eventDateField.disabled = true;
-    } else if (typeof item.start?.getAsync === "function") {
-      // Edit mode
-      item.start.getAsync((result:any) => {
-        if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
-          const startTime = new Date(result.value);
-          const formattedStart = startTime.toISOString().split("T")[0];
-          eventDateField.value = formattedStart;
-          eventDateField.disabled = true;
-        } else {
-          console.error("Failed to fetch start date:", result.error);
-        }
-      });
+    // === Start Date ===
+    const eventDateField: any = document.querySelector(".event-date");
+    if (eventDateField) {
+      if (item.start instanceof Date) {
+        // Read mode
+        const formattedStart = item.start.toISOString().split("T")[0];
+        eventDateField.value = formattedStart;
+        eventDateField.disabled = true;
+      } else if (typeof item.start?.getAsync === "function") {
+        // Edit mode
+        item.start.getAsync((result: any) => {
+          if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
+            const startTime = new Date(result.value);
+            const formattedStart = startTime.toISOString().split("T")[0];
+            eventDateField.value = formattedStart;
+            eventDateField.disabled = true;
+          } else {
+            console.error("Failed to fetch start date:", result.error);
+          }
+        });
+      }
     }
-  }
 
-  // === Duration ===
-  const eventDurationField :any = document.querySelector(".event-duration");
+    // === Duration ===
+    const eventDurationField: any = document.querySelector(".event-duration");
 
-  const getStartEndTime = (callback:any) => {
-    let startTime:any = null;
-    let endTime:any = null;
+    const getStartEndTime = (callback: any) => {
+      let startTime: any = null;
+      let endTime: any = null;
 
-    const tryCalculate = () => {
-      if (startTime && endTime && callback) {
-        const duration = (endTime - startTime) / (1000 * 60); // minutes
-        callback(duration);
+      const tryCalculate = () => {
+        if (startTime && endTime && callback) {
+          const duration = (endTime - startTime) / (1000 * 60); // minutes
+          callback(duration);
+        }
+      };
+
+      const handleAsync = () => {
+        item.start.getAsync((startResult: { status: Office.AsyncResultStatus; value: string | number | Date; error: any; }) => {
+          if (startResult.status === Office.AsyncResultStatus.Succeeded) {
+            startTime = new Date(startResult.value);
+
+            item.end.getAsync((endResult: any) => {
+              if (endResult.status === Office.AsyncResultStatus.Succeeded) {
+                endTime = new Date(endResult.value);
+                tryCalculate();
+              } else {
+                console.error("Failed to fetch end time:", endResult.error);
+              }
+            });
+          } else {
+            console.error("Failed to fetch start time:", startResult.error);
+          }
+        });
+      };
+
+      if (item.start instanceof Date && item.end instanceof Date) {
+        // Read mode
+        startTime = item.start;
+        endTime = item.end;
+        tryCalculate();
+      } else if (typeof item.start?.getAsync === "function" && typeof item.end?.getAsync === "function") {
+        // Edit mode
+        handleAsync();
+      } else {
+        console.error("Start or End time not available.");
       }
     };
 
-    const handleAsync = () => {
-      item.start.getAsync((startResult: { status: Office.AsyncResultStatus; value: string | number | Date; error: any; }) => {
-        if (startResult.status === Office.AsyncResultStatus.Succeeded) {
-          startTime = new Date(startResult.value);
-
-          item.end.getAsync((endResult:any) => {
-            if (endResult.status === Office.AsyncResultStatus.Succeeded) {
-              endTime = new Date(endResult.value);
-              tryCalculate();
-            } else {
-              console.error("Failed to fetch end time:", endResult.error);
-            }
-          });
-        } else {
-          console.error("Failed to fetch start time:", startResult.error);
-        }
+    if (eventDurationField) {
+      getStartEndTime((duration: any) => {
+        eventDurationField.value = duration;
+        eventDurationField.disabled = true;
       });
-    };
-
-    if (item.start instanceof Date && item.end instanceof Date) {
-      // Read mode
-      startTime = item.start;
-      endTime = item.end;
-      tryCalculate();
-    } else if (typeof item.start?.getAsync === "function" && typeof item.end?.getAsync === "function") {
-      // Edit mode
-      handleAsync();
-    } else {
-      console.error("Start or End time not available.");
     }
-  };
-
-  if (eventDurationField) {
-    getStartEndTime((duration:any) => {
-      eventDurationField.value = duration;
-      eventDurationField.disabled = true;
-    });
   }
-}
 
 
-  const closeBtn:any = document.getElementById("closePane");
-  
-  if (info.host===  Office.HostType.Outlook) {
-    closeBtn.addEventListener("click", ():void => {
-      
+  const closeBtn: any = document.getElementById("closePane");
+
+  if (info.host === Office.HostType.Outlook) {
+    closeBtn.addEventListener("click", (): void => {
+
       // console.log(Office.context.ui);
       Office.context.ui.closeContainer()
     });
-  }else{
+  } else {
     closeBtn.style.display = 'none'
   }
 });
@@ -814,7 +819,7 @@ function mapProjectType(choiceOptions: any[], projectType: string) {
   return matchedOption ? matchedOption.value : null;
 }
 
-function getFieldValues (){
+function getFieldValues() {
   // let fieldArray=[
   //   {date:{value:date.value,error:dateError}},
   //   {project:{value:searchInputProject.value,error:projectError}},
@@ -823,11 +828,12 @@ function getFieldValues (){
   //   {description:{value:description.value,error:DescriptionError}}
   // ]
 
-  let fieldArray=[
-    {value:date.value,error:dateError,errorMessage:"Please Select Date"},
-    {value:searchInputProject.value,error:projectError,errorMessage:"Please select project"},
-    {value:searchInputTask.value,error:taskError,errorMessage:"Please select project Task"},
-   {value:duration.value,error:durationError,errorMessage:"Please Fill the duration"},
+  let fieldArray = [
+    { value: date.value, error: dateError, errorMessage: "Please Select Date" },
+    { value: searchInputProject.value, error: projectError, errorMessage: "Please select project" },
+    { value: searchInputTask.value, error: taskError, errorMessage: "Please select project Task" },
+    //  {value:duration.value,error:durationError,errorMessage:"Please Fill the duration"},
+    { value: durationDropdown.value, error: durationError, errorMessage: "Please Select the duration" },
     // {value:description.value,error:DescriptionError,errorMessage:"Please Fill Description"}
   ]
 
@@ -836,48 +842,49 @@ function getFieldValues (){
 }
 
 
-const triggerFunction=(type:any) => {
+const triggerFunction = (type: any) => {
 
   let error = validateField()
 
-  if (error.length > 0){
+  if (error.length > 0) {
     // console.log("Termination of submission")
     return
   }
-  
+
   // insertButton.style.pointerEvents = "none";
   // insertButton.style.opacity = "0.5";
   insertError.textContent = "Please wait while data is submitting .....";
   insertError.style.color = "black"
-  
+
   // console.log("reach after validation")
-  
+
   createFieldValues(type);
 }
 
 
- const actions:any = {
-    0:()=>{},
-    1:()=>{
-      triggerFunction("save")},
-  
-    2:()=>{
-      triggerFunction("saveAndClose")
-    } 
-  };
+const actions: any = {
+  0: () => { },
+  1: () => {
+    triggerFunction("save")
+  },
 
-  const mainButton:any = document.getElementById('mainButton');
-  const dropdownToggle:any = document.getElementById('dropdownToggle');
-  const dropdownMenu :any= document.getElementById('dropdownMenu');
+  2: () => {
+    triggerFunction("saveAndClose")
+  }
+};
 
-  
-  // Main button click
-  mainButton.addEventListener('click', () => {
-    actions[currentAction]();
-  });
+const mainButton: any = document.getElementById('mainButton');
+const dropdownToggle: any = document.getElementById('dropdownToggle');
+const dropdownMenu: any = document.getElementById('dropdownMenu');
 
-  // Toggle dropdown
- dropdownToggle.addEventListener('click', () => {
+
+// Main button click
+mainButton.addEventListener('click', () => {
+  actions[currentAction]();
+});
+
+// Toggle dropdown
+dropdownToggle.addEventListener('click', () => {
   const isVisible = dropdownMenu.style.display === 'block';
   dropdownMenu.style.display = isVisible ? 'none' : 'block';
 
@@ -892,40 +899,41 @@ const triggerFunction=(type:any) => {
   }
 });
 
-  // Select dropdown option
-  dropdownMenu.addEventListener('click', (e:any) => {
-    if (e.target.tagName === 'BUTTON') {
-      const selected = e.target.getAttribute('data-action');
-      currentAction = selected;
-      mainButton.textContent = e.target.textContent;
-      dropdownMenu.style.display = 'none';
-      // actions[selected](); // immediately trigger action
-    }
-  });
+// Select dropdown option
+dropdownMenu.addEventListener('click', (e: any) => {
+  if (e.target.tagName === 'BUTTON') {
+    const selected = e.target.getAttribute('data-action');
+    currentAction = selected;
+    // console.log()
+    mainButton.textContent = e.target.textContent;
+    dropdownMenu.style.display = 'none';
+    // actions[selected](); // immediately trigger action
+  }
+});
 
-  // Hide menu when clicking outside
-  document.addEventListener('click', (e:any) => {
-    if (!document.getElementById('splitButton')!.contains(e.target)) {
-      dropdownMenu.style.display = 'none';
-    }
-  });
-
-
-
+// Hide menu when clicking outside
+document.addEventListener('click', (e: any) => {
+  if (!document.getElementById('splitButton')!.contains(e.target)) {
+    dropdownMenu.style.display = 'none';
+  }
+});
 
 
 
 
-function validateField (){
+
+
+
+function validateField() {
   // ✅ Get the current value when the event fires
-  let fieldArray=getFieldValues()
+  let fieldArray = getFieldValues()
   // const latestSearchValue = searchInputProject.value;
   // console.log("Latest search input value:", latestSearchValue);
   // console.log(fieldArray,"field Validation")
-  let error=[]
-  for (let each of fieldArray){
+  let error = []
+  for (let each of fieldArray) {
     // console.log(each.value)
-    if (each.value === ""){
+    if (each.value === "") {
       // console.log(each.error,"Error")
       each.error.textContent = each.errorMessage;
       error.push(each.errorMessage)
@@ -935,8 +943,8 @@ function validateField (){
   // console.log(error.length)
 
   return error
- 
- 
+
+
 };
 
 // Insert Time Entry Button
@@ -949,26 +957,32 @@ function validateField (){
 //     // console.log("Termination of submission")
 //     return
 //   }
-  
+
 //   insertButton.style.pointerEvents = "none";
 //   insertButton.style.opacity = "0.5";
 //   insertError.textContent = "Please wait while data is submitting .....";
 //   insertError.style.color = "black"
-  
+
 //   // console.log("reach after validation")
-  
+
 //   createFieldValues();
 // }
 // );
 
 
-duration.addEventListener("focus",()=>{
+// duration.addEventListener("focus",()=>{
+//   durationError.textContent = ""
+// })
+
+
+durationDropdown.addEventListener("focus", () => {
   durationError.textContent = ""
 })
-date.addEventListener("focus",()=>{
+
+date.addEventListener("focus", () => {
   dateError.textContent = ""
 })
-description.addEventListener("focus",()=>{
+description.addEventListener("focus", () => {
   DescriptionError.textContent = ""
 })
 
@@ -979,13 +993,13 @@ description.addEventListener("focus",()=>{
 
 
 
-async function createFieldValues(type:any) {
-  let dateElement:any = document.querySelector(".event-date");
-  
+async function createFieldValues(type: any) {
+  let dateElement: any = document.querySelector(".event-date");
+
   // console.log("Selected Project Type:", projectType);
 
-  let durationElement:any = document.querySelector(".event-duration");
-  let descriptionElement:any = document.querySelector(".description-field");
+  let durationElement: any = document.querySelector(".event-duration");
+  let descriptionElement: any = document.querySelector(".description-field");
 
   let dateValue = dateElement ? dateElement.value : "";
 
@@ -1018,8 +1032,8 @@ async function createFieldValues(type:any) {
     // "msdyn_project@odata.bind": `msdyn_projects(${selectedProjectIdNew})`,
     // "msdyn_projectTask@odata.bind": `msdyn_projecttasks(${selectedProjectTaskIdNew})`,
     "msdyn_project@odata.bind": `/msdyn_projects(${selectedProjectIdNew})`,
-  "msdyn_projectTask@odata.bind": `/msdyn_projecttasks(${selectedProjectTaskIdNew})`,
-  
+    "msdyn_projectTask@odata.bind": `/msdyn_projecttasks(${selectedProjectTaskIdNew})`,
+
 
     msdyn_date: formattedDate, // Date formatted as ISO 8601
     msdyn_duration: parseInt(durationValue, 10) || 0, // Convert duration to integer
@@ -1049,7 +1063,7 @@ async function createFieldValues(type:any) {
     // Office.context.ui.closeContainer();
     // console.log(response);
 
-    
+
 
     if (!response.ok) {
       const errorText = await response.text(); // Capture response even if it's not JSON
@@ -1075,29 +1089,30 @@ async function createFieldValues(type:any) {
       // insertButton.style.pointerEvents = "none";
       // insertButton.style.opacity = "0.5";
       console.log(type)
-      if (type==='saveAndClose'){
-        setTimeout(() => {
-  if (host === Office.HostType.Outlook)
-  Office.context.ui.closeContainer();
-}, 3000);
+      if (type === 'saveAndClose') {
+        // setTimeout(() => {
+        //   if (host === Office.HostType.Outlook)
+        //     Office.context.ui.closeContainer();
+        // }, 3000);
 
-      }else{
+      } else {
         console.log(type)
-        dateElement.value='',
-        searchInputProject.value='',
-        searchInputTask.value='',
-        duration.value='',
-        description.value='',
-        projectType="Client",
-         client.classList.add("active", "toggle-btn")
-  internal.classList.remove("active");
+        dateElement.value = '',
+          searchInputProject.value = '',
+          searchInputTask.value = '',
+          // duration.value='',
+          durationDropdown.value = '',
+          description.value = '',
+          projectType = "Client",
+          client.classList.add("active", "toggle-btn")
+        internal.classList.remove("active");
       }
 
-     
+
 
     }
 
-    
+
 
     // Check if response has content before parsing JSON
   } catch (error) {

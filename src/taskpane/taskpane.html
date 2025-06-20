@@ -25,7 +25,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css"> -->
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
 
-  
+
 </head>
 
 <body>
@@ -48,7 +48,7 @@
                     <button id="internal" type="button" class="toggle-btn" data-value="internal">Internal</button>
                 </div>
             </div>
-           
+
 
 
 
@@ -80,14 +80,42 @@
             <div class="ms-TextField-Container">
                 <label class="ms-Label">Duration</label>
                 <!-- <input id = "duration" class="ms-TextField-field event-duration" type="number" min="0" max="1440" step="1" required /> -->
+
+                <select id="durationDropdown" class="ms-TextField-field event-duration" required>
+                    <option value="">Select duration...</option>
+                    <option value="5">5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="20">20 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="45">45 minutes</option>
+                    <option value="60">1 hour</option>
+                    <option value="90">1.5 hours</option>
+                    <option value="120">2 hours</option>
+                    <option value="150">2.5 hours</option>
+                    <option value="180">3 hours</option>
+                    <option value="210">3.5 hours</option>
+                    <option value="240">4 hours</option>
+                    <option value="270">4.5 hours</option>
+                    <option value="300">5 hours</option>
+                    <option value="330">5.5 hours</option>
+                    <option value="360">6 hours</option>
+                    <option value="390">6.5 hours</option>
+                    <option value="420">7 hours</option>
+                    <option value="450">7.5 hours</option>
+                    <option value="480">8 hours</option>
+                    <option value="1440">1 day</option>
+                    <option value="2880">2 days</option>
+                    <option value="4320">3 days</option>
+                </select>
             </div>
             <span id="durationError"></span>
             <div class="ms-TextField-Container">
-                <label >Description</label>
-                
+                <label>Description</label>
+
                 <!-- <div id="description"  class="description-field"></div> -->
                 <div id="descriptionTextarea" class="ms-TextField-Container">
-                    <textarea  id="description"   class="description-field"></textarea>
+                    <textarea id="description" class="description-field"></textarea>
 
                 </div>
             </div>
@@ -97,28 +125,28 @@
         <br />
         <span id="insertError"></span>
 
-<!-- 
+        <!-- 
         <div class="actnbtn_container">
             <div class="ui mini button clear-filters holibtn" id="insertTimeEntry">Insert Time Entry</div>
             <div class="ui mini button clear-filters holibtn" id="closePane">Close</div>
         </div> -->
 
-     
+
         <div id="message" class="ms-welcome__action"></div>
         <!-- custom component -->
 
-          <div class="split-button" id="splitButton">
-  <button class="ui button main-button" id="mainButton">Insert Time Entry</button>
-  <button class="ui button dropdown-toggle" id="dropdownToggle">▼</button>
-  <div class="dropdown-menu" id="dropdownMenu">
-    <button data-action="1">Save</button>
-    <button data-action="2"  id="closePane">Save and Close</button>
-    
-  </div>
-</div>
-</div>
+        <div class="split-button" id="splitButton">
+            <button class="ui button main-button" id="mainButton">Insert Time Entry</button>
+            <button class="ui button dropdown-toggle" id="dropdownToggle">▼</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <button data-action="1">Save</button>
+                <button data-action="2" id="closePane">Save and Close</button>
 
-       
+            </div>
+        </div>
+        </div>
+
+
 
     </main>
 
@@ -128,7 +156,7 @@
 
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-   
+
     <script src="./taskpane.ts"></script>
 </body>
 
