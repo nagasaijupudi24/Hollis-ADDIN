@@ -17,9 +17,10 @@
 /* global console, document, Office */
 
 import { AccountManager } from "./authConfig";
+import { v4 as uuidv4 } from 'uuid';
 // import { makeGraphRequest } from "./msgraph-helper";
 // import { writeFileNamesToOfficeDocument } from "./document";
-
+const id = uuidv4();
 const accountManager = new AccountManager();
 let selectedProjectIdTable;
 let selectedProjectTaskIdTable;
@@ -34,7 +35,8 @@ let pca = undefined;
 let isPCAInitialized = false;
 let token: any;
 
-let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
+// let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
+let domain:any = "https://hollis-projectops-dev-01.api.crm4.dynamics.com";
 // https://hollis-projectops-dev-01.api.crm4.dynamics.com
 
 let options: any[] = [];
@@ -53,6 +55,11 @@ let dateError:any = document.getElementById("dateError")
 let description:any = document.getElementById("description")
 let descriptionTextarea:any = document.getElementById("descriptionTextarea")
 let DescriptionError:any = document.getElementById("DescriptionError")
+let currentAction = 0;
+
+
+ const MAX_DURATION = 1440;
+    const MAX_DIGITS = 4; // 1440 has 4 digits
 
 let projectnameArray:any = [];
 let projectTaskArr:any = [];
@@ -60,23 +67,69 @@ let projectTaskArr:any = [];
 let projectType:any = "Client"
 
 
+
+let clearProjectandProjectTaskField = ()=>{
+  //project and id set to empty 
+  selectedProjectName = '';
+  selectedProjectIdNew = '';
+
+  
+  //project Task and id set to empyt 
+
+  selectedProjectTaskName = '';
+  selectedProjectTaskIdNew = ''
+
+ 
+
+  //input field clearing 
+  searchInputTask.value = ''
+  searchInputProject.value = ''
+  
+}
+
+
 let client:any = document.getElementById("client")
 let internal:any = document.getElementById("internal")
+
+//Intial buttons positions
+
+client.disabled = true; // Disable the button after click
+internal.disabled = false;
+
 client.addEventListener('click',()=>{
-  // console.log("client")
+  console.log("client")
   
   client.classList.add("active", "toggle-btn")
   internal.classList.remove("active");
+
+  
+
   projectType ='Client'
+
+  clearProjectandProjectTaskField()
+
+  //disabling current button and enabling the other button 
+
+  client.disabled = true; // Disable the button after click
+  internal.disabled = false; // Enable the other button if needed
 })
 
 
 internal.addEventListener('click',()=>{
-  // console.log("internal")
+  console.log("internal")
  
   internal.classList.add("active", "toggle-btn")
   client.classList.remove("active");
   projectType = 'Internal'
+
+
+
+  clearProjectandProjectTaskField()
+
+  //disabling current button and enabling the other button 
+
+   internal.disabled = true; // Disable the button after click
+  client.disabled  = false; // Enable the other button if needed
 
 })
 
@@ -159,6 +212,8 @@ function filterOptionsProject() {
 
 
 function filterOptionsTask() {
+
+
   let filter = searchInputTask.value.toLowerCase();
   let items = dropdownListTask.getElementsByTagName("div");
 
@@ -184,7 +239,7 @@ const fetchMatchingProjects = async (searchTerm: any) => {
 
   try {
     const projectsResponse = await fetch(
-      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$filter=contains(msdyn_subject, '${searchTerm}')`,
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$filter=contains(msdyn_subject, '${searchTerm}') or contains(ebecs_projectnumber20characters,'${searchTerm}')`,
       {
         method: "GET",
         headers: {
@@ -199,7 +254,7 @@ const fetchMatchingProjects = async (searchTerm: any) => {
     }
 
     const projectsData = await projectsResponse.json();
-    // console.log("Filtered projects:", projectsData);
+    console.log("Filtered projects:", projectsData);
     let newOption: any[] = [];
     let projectnameArray: { [x: number]: any; }[] = [];
     projectsData.value.forEach((each: { msdyn_projectid: any; msdyn_subject: any; }) => {
@@ -245,7 +300,41 @@ searchInputProject.addEventListener("click", showDropdownProject);
 searchInputProject.addEventListener("focus", ()=>{
   dropdownListTask.style.display = 'none'
 });
-searchInputTask.addEventListener("keyup", filterOptionsTask);
+
+ searchInputProject.addEventListener("focus", () => {
+    dropdownListProject.style.display = "block";
+  });
+
+  searchInputTask.addEventListener("focus", () => {
+    dropdownListTask.style.display = "block";
+  });
+
+
+   document.addEventListener("click", (e) => {
+    if (
+      !dropdownListProject.contains(e.target) &&
+      !searchInputProject.contains(e.target)
+    ) {
+      dropdownListProject.style.display = "none";
+      
+    }
+
+   if (
+      !dropdownListTask.contains(e.target) &&
+      !searchInputTask.contains(e.target)
+    ) {
+    
+      dropdownListTask.style.display = "none";
+    }
+  });
+
+searchInputTask.addEventListener("keyup",(event:any)=>{
+   if (event.key === 'Escape') {
+     searchInputTask.blur(); // Removes focus from the input
+     dropdownListTask.style.display='none'
+    }
+    filterOptionsTask()
+} );
 searchInputTask.addEventListener("click", () => {
   dropdownListTask.style.display = "block";
 }); // Show task dropdown when clicked
@@ -265,9 +354,35 @@ searchInputTask.addEventListener("focus", ()=>{
 searchInputProject.addEventListener("keyup", (event: any) => {
   const searchTerm = event.target.value;
   fetchMatchingProjects(searchTerm);
+
+   if (event.key === 'Escape') {
+     searchInputProject.blur(); // Removes focus from the input
+     dropdownListProject.style.display='none'
+    }
   if (searchTerm === ''){
     fetchProject(token)
   }
+});
+
+
+duration.addEventListener("keyup", (event: any) => {
+ 
+
+   if (event.key === 'Escape') {
+     duration.blur(); // Removes focus from the input
+     
+    }
+ 
+});
+
+description.addEventListener("keyup", (event: any) => {
+ 
+
+   if (event.key === 'Escape') {
+     description.blur(); // Removes focus from the input
+     
+    }
+ 
 });
 
 
@@ -346,14 +461,29 @@ function populateDropdown(options: any[]) {
   // console.log(options)
   dropdownListProject.innerHTML = "";
   options.forEach((option) => {
-    let div = document.createElement("div");
-    div.textContent = option.text;
-    div.id = `${option.value}`;
-    div.style.fontSize = "12px";
-    div.style.color = "rgb(84, 84, 84)";
+    console.log(option)
+  const spanElement = document.createElement('span');
+spanElement.textContent = `${option.projectNumber}`;
+
+// Optional styling for the span
+spanElement.style.display = "block";  // Forces it to appear on a new line
+spanElement.style.fontSize = "10px";  // You can adjust this
+
+let div = document.createElement("div");
+div.id = `${option.value}`;
+div.style.fontSize = "12px";
+div.style.color = "rgb(84, 84, 84)";
+
+// Add the option text as a text node (on the first line)
+const textNode = document.createTextNode(option.text);
+div.appendChild(textNode);
+
+// Add the span on the second line
+div.appendChild(spanElement);
     div.onclick = function () {
       getProjectById(option.value)
       searchInputProject.value = option.text;
+    
       selectedProjectName = option.text
       dropdownListProject.style.display = "none";
       // dropdownListTask.style.display = "none"
@@ -372,11 +502,27 @@ function populateDropdown(options: any[]) {
 async function fetchProject(accessToken:any) {
 
   // console.log("project fetching called")
+    const projects= await fetch(
+      `${domain}/api/data/v9.2/msdyn_projects`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ).then(
+      async (data)=>{
+        console.log(await data.json())
+        
+      }
+    )
+  
+
 
   try {
     
     const projectsResponse = await fetch(
-      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid&$top=20`,
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$top=20`,
       {
         method: "GET",
         headers: {
@@ -390,7 +536,7 @@ async function fetchProject(accessToken:any) {
       // console.log("Projects data retrieved successfully:", projectsData);
 
       projectsData.value.forEach((each:any) => {
-        newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject });
+        newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject,projectNumber:each.ebecs_projectnumber20characters });
         projectnameArray.push({ [each.msdyn_projectid]: each.msdyn_subject });
       });
       options = newOption;
@@ -472,7 +618,10 @@ let host:any ;
 
 Office.onReady(async (info) => {
   host = info.host
-  console.log(Office.context)
+  
+  console.log(Office)
+console.log(Office.context)
+// console.log(Office.context.document.getFilePropertiesAsync())
   switch (info.host) {
     case Office.HostType.Excel:
     case Office.HostType.PowerPoint:
@@ -520,6 +669,8 @@ Office.onReady(async (info) => {
 
    if (info.host===  Office.HostType.Outlook){
     item = Office.context.mailbox.item;
+
+   
     
    }
 
@@ -532,6 +683,104 @@ Office.onReady(async (info) => {
       
       break;
   }
+
+
+   duration.addEventListener('change', function() {
+        validateDurationInput();
+    });
+
+
+    function validateDurationInput() {
+        let value = duration.value.trim();
+        console.log(value)
+        let isValid = true;
+        let errorMessage = '';
+
+        // Check if empty
+        if (value === '') {
+            errorMessage = 'Duration is required';
+            isValid = false;
+        } 
+        // Check if not a number
+        else if (isNaN(value)) {
+            errorMessage = 'Duration must be a number';
+            isValid = false;
+        } 
+        // Check if contains decimals
+        else if (value.includes('.')) {
+            errorMessage = 'Duration must be a whole number';
+            isValid = false;
+            value = Math.floor(value);
+        } 
+        // Check if negative
+        else if (parseInt(value) < 0) {
+            errorMessage = 'Duration cannot be negative';
+            isValid = false;
+            value = 0;
+        } 
+        // Check if exceeds 1440 minutes
+        else if (parseInt(value) > 1440) {
+            errorMessage = 'Duration cannot exceed 1440 minutes (24 hours)';
+            isValid = false;
+            value = "";
+        }
+
+        // Update the field and show error if needed
+        duration.value = value;
+        
+        if (!isValid) {
+            durationError.textContent = errorMessage;
+            durationError.style.display = 'block';
+        } else {
+            durationError.style.display = 'none';
+        }
+
+        return isValid;
+    }
+
+    duration.addEventListener('keydown', function(e:any) {
+        // Prevent: -, ., e, E
+        if (['-', '.', 'e', 'E'].includes(e.key)) {
+            e.preventDefault();
+            return;
+        }
+
+        // Allow: backspace, delete, tab, escape, enter
+        if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+            return;
+        }
+
+        // Allow arrow keys
+        if (e.key.startsWith('Arrow')) {
+            return;
+        }
+
+        // Allow Ctrl/Command + A, C, V, X
+        if (e.ctrlKey || e.metaKey) {
+            return;
+        }
+
+        // Check if we're already at max digits and trying to add more
+        if (duration.value.length >= MAX_DIGITS && !['Backspace', 'Delete'].includes(e.key)) {
+            // Get the new potential value
+            const newValue = duration.value + e.key;
+            if (parseInt(newValue) > MAX_DURATION) {
+                e.preventDefault();
+                showError(`Maximum duration is ${MAX_DURATION} minutes`);
+                return;
+            }
+        }
+    });
+
+     function showError(message:any) {
+        durationError.textContent = message;
+        duration.style.display = 'block';
+    }
+
+  
+
+    
+
 
 
 
@@ -677,12 +926,91 @@ function getFieldValues (){
     {value:searchInputProject.value,error:projectError,errorMessage:"Please select project"},
     {value:searchInputTask.value,error:taskError,errorMessage:"Please select project Task"},
    {value:duration.value,error:durationError,errorMessage:"Please Fill the duration"},
-    {value:description.value,error:DescriptionError,errorMessage:"Please Fill Description"}
+    // {value:description.value,error:DescriptionError,errorMessage:"Please Fill Description"}
   ]
 
   return fieldArray
 
 }
+
+
+const triggerFunction=(type:any) => {
+
+  let error = validateField()
+
+  if (error.length > 0){
+    // console.log("Termination of submission")
+    return
+  }
+  
+  // insertButton.style.pointerEvents = "none";
+  // insertButton.style.opacity = "0.5";
+  insertError.textContent = "Please wait while data is submitting .....";
+  insertError.style.color = "black"
+  
+  // console.log("reach after validation")
+  
+  createFieldValues(type);
+}
+
+
+ const actions:any = {
+    0:()=>{},
+    1:()=>{
+      triggerFunction("save")},
+  
+    2:()=>{
+      triggerFunction("saveAndClose")
+    } 
+  };
+
+  const mainButton:any = document.getElementById('mainButton');
+  const dropdownToggle:any = document.getElementById('dropdownToggle');
+  const dropdownMenu :any= document.getElementById('dropdownMenu');
+
+  
+  // Main button click
+  mainButton.addEventListener('click', () => {
+    actions[currentAction]();
+  });
+
+  // Toggle dropdown
+ dropdownToggle.addEventListener('click', () => {
+  const isVisible = dropdownMenu.style.display === 'block';
+  dropdownMenu.style.display = isVisible ? 'none' : 'block';
+
+  if (!isVisible) {
+    // Scroll dropdown into view smoothly
+    setTimeout(() => {
+      dropdownMenu.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end'
+      });
+    }, 50); // slight delay to allow DOM to render dropdown
+  }
+});
+
+  // Select dropdown option
+  dropdownMenu.addEventListener('click', (e:any) => {
+    if (e.target.tagName === 'BUTTON') {
+      const selected = e.target.getAttribute('data-action');
+      currentAction = selected;
+      mainButton.textContent = e.target.textContent;
+      dropdownMenu.style.display = 'none';
+      // actions[selected](); // immediately trigger action
+    }
+  });
+
+  // Hide menu when clicking outside
+  document.addEventListener('click', (e:any) => {
+    if (!document.getElementById('splitButton')!.contains(e.target)) {
+      dropdownMenu.style.display = 'none';
+    }
+  });
+
+
+
+
 
 
 
@@ -710,24 +1038,26 @@ function validateField (){
 };
 
 // Insert Time Entry Button
-document.getElementById("insertTimeEntry")!.addEventListener("click", () => {
+// document.getElementById("insertTimeEntry")!.addEventListener("click", 
+//   () => {
 
-  let error = validateField()
+//   let error = validateField()
 
-  if (error.length > 0){
-    // console.log("Termination of submission")
-    return
-  }
+//   if (error.length > 0){
+//     // console.log("Termination of submission")
+//     return
+//   }
   
-  insertButton.style.pointerEvents = "none";
-  insertButton.style.opacity = "0.5";
-  insertError.textContent = "Please wait while data is submitting .....";
-  insertError.style.color = "black"
+//   insertButton.style.pointerEvents = "none";
+//   insertButton.style.opacity = "0.5";
+//   insertError.textContent = "Please wait while data is submitting .....";
+//   insertError.style.color = "black"
   
-  // console.log("reach after validation")
+//   // console.log("reach after validation")
   
-  createFieldValues();
-});
+//   createFieldValues();
+// }
+// );
 
 
 duration.addEventListener("focus",()=>{
@@ -747,7 +1077,7 @@ description.addEventListener("focus",()=>{
 
 
 
-async function createFieldValues() {
+async function createFieldValues(type:any) {
   let dateElement:any = document.querySelector(".event-date");
   
   // console.log("Selected Project Type:", projectType);
@@ -826,22 +1156,43 @@ async function createFieldValues() {
       // console.log(error);
       insertError.style.color = "red";
       insertError.style.fontSize = "10px";
-      insertError.textContent = "Error Encountered while submitting the data please insert proper data.";
+      insertError.textContent = `"Error Encountered while submitting the data please insert proper data."`;
+
+      // Re-enable the button on error
+      const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
+      insertButton.style.pointerEvents = "auto";
+      insertButton.style.opacity = "1";
 
       throw new Error(`Error creating record: ${response.status} ${response.statusText} - ${errorText}`);
     } else {
       insertError.textContent = "Time entry inserted successfully. Please close the task pane using the cross icon at the top right corner.";
       insertError.style.color = "Green";
       insertError.style.marginBottom = "10px";
-      const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
-insertButton.style.pointerEvents = "none";
-insertButton.style.opacity = "0.5";
 
-     
-setTimeout(() => {
+      // const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
+      // insertButton.style.pointerEvents = "none";
+      // insertButton.style.opacity = "0.5";
+      console.log(type)
+      if (type==='saveAndClose'){
+        setTimeout(() => {
   if (host === Office.HostType.Outlook)
   Office.context.ui.closeContainer();
 }, 3000);
+
+      }else{
+        console.log(type)
+        dateElement.value='',
+        searchInputProject.value='',
+        searchInputTask.value='',
+        duration.value='',
+        description.value='',
+        projectType="Client",
+         client.classList.add("active", "toggle-btn")
+  internal.classList.remove("active");
+      }
+
+     
+
     }
 
     

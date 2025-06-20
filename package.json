@@ -30,7 +30,8 @@
   "dependencies": {
     "@azure/msal-browser": "^3.24.0",
     "core-js": "^3.37.1",
-    "regenerator-runtime": "^0.14.1"
+    "regenerator-runtime": "^0.14.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

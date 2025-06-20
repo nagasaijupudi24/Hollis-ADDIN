@@ -330,6 +330,57 @@ textarea.ms-TextField-field {
     color: red;
 }
 
+ .split-button {
+      display: inline-flex;
+      position: relative;
+      font-family: sans-serif;
+    }
+
+    .split-button button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #0078d4;
+      background-color: #0078d4;
+      color: white;
+      cursor: pointer;
+    }
+
+    .split-button .dropdown-toggle {
+      border-left: none;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      min-width: 100%;
+      background-color: white;
+      border: 1px solid #ccc;
+    }
+
+    .dropdown-menu button {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      background-color: white;
+      text-align: left;
+      color: black;
+    }
+
+    .dropdown-menu button:hover {
+      background-color: #f1f1f1;
+    }
+
+
+
+
+
 
 
 

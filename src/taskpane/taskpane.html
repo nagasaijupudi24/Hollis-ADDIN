@@ -79,11 +79,11 @@
 
             <div class="ms-TextField-Container">
                 <label class="ms-Label">Duration</label>
-                <input id = "duration" class="ms-TextField-field event-duration" type="number" required />
+                <input id = "duration" class="ms-TextField-field event-duration" type="number" min="0" max="1440" step="1" required />
             </div>
             <span id="durationError"></span>
             <div class="ms-TextField-Container">
-                <label class="ms-Label">Description</label>
+                <label >Description</label>
                 
                 <!-- <div id="description"  class="description-field"></div> -->
                 <div id="descriptionTextarea" class="ms-TextField-Container">
@@ -97,14 +97,27 @@
         <br />
         <span id="insertError"></span>
 
-
+<!-- 
         <div class="actnbtn_container">
             <div class="ui mini button clear-filters holibtn" id="insertTimeEntry">Insert Time Entry</div>
             <div class="ui mini button clear-filters holibtn" id="closePane">Close</div>
-        </div>
-       
+        </div> -->
+
+     
         <div id="message" class="ms-welcome__action"></div>
         <!-- custom component -->
+
+          <div class="split-button" id="splitButton">
+  <button class="ui button main-button" id="mainButton">Insert Time Entry</button>
+  <button class="ui button dropdown-toggle" id="dropdownToggle">▼</button>
+  <div class="dropdown-menu" id="dropdownMenu">
+    <button data-action="1">Save</button>
+    <button data-action="2"  id="closePane">Save and Close</button>
+    
+  </div>
+</div>
+</div>
+
        
 
     </main>
