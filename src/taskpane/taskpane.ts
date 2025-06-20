@@ -799,7 +799,7 @@ Office.onReady(async (info) => {
     closeBtn.addEventListener("click", (): void => {
 
       // console.log(Office.context.ui);
-      Office.context.ui.closeContainer()
+      // Office.context.ui.closeContainer()
     });
   } else {
     closeBtn.style.display = 'none'
@@ -873,50 +873,46 @@ const actions: any = {
   }
 };
 
-const mainButton: any = document.getElementById('mainButton');
-const dropdownToggle: any = document.getElementById('dropdownToggle');
-const dropdownMenu: any = document.getElementById('dropdownMenu');
 
 
-// Main button click
-mainButton.addEventListener('click', () => {
-  actions[currentAction]();
-});
 
-// Toggle dropdown
-dropdownToggle.addEventListener('click', () => {
-  const isVisible = dropdownMenu.style.display === 'block';
-  dropdownMenu.style.display = isVisible ? 'none' : 'block';
+
+const mainButton: HTMLElement | null = document.getElementById('mainButton');
+const dropdownToggle: HTMLElement | null = document.getElementById('dropdownToggle');
+const dropdownMenu: HTMLElement | null = document.getElementById('dropdownMenu');
+
+
+// Toggle dropdown menu
+dropdownToggle?.addEventListener('click', (e) => {
+  e.stopPropagation(); // Prevent triggering the document click
+  const isVisible = dropdownMenu!.style.display === 'block';
+  dropdownMenu!.style.display = isVisible ? 'none' : 'block';
 
   if (!isVisible) {
-    // Scroll dropdown into view smoothly
     setTimeout(() => {
-      dropdownMenu.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end'
-      });
-    }, 50); // slight delay to allow DOM to render dropdown
+      dropdownMenu!.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50);
   }
 });
 
-// Select dropdown option
-dropdownMenu.addEventListener('click', (e: any) => {
+// Handle dropdown option click
+dropdownMenu?.addEventListener('click', (e: any) => {
   if (e.target.tagName === 'BUTTON') {
     const selected = e.target.getAttribute('data-action');
-    currentAction = selected;
-    // console.log()
-    mainButton.textContent = e.target.textContent;
-    dropdownMenu.style.display = 'none';
-    // actions[selected](); // immediately trigger action
+    dropdownMenu!.style.display = 'none';
+    if (selected && actions[selected]) {
+      actions[selected](); // Immediately trigger the associated action
+    }
   }
 });
 
-// Hide menu when clicking outside
+// Hide dropdown when clicking outside
 document.addEventListener('click', (e: any) => {
   if (!document.getElementById('splitButton')!.contains(e.target)) {
-    dropdownMenu.style.display = 'none';
+    dropdownMenu!.style.display = 'none';
   }
 });
+
 
 
 
@@ -1090,10 +1086,10 @@ async function createFieldValues(type: any) {
       // insertButton.style.opacity = "0.5";
       console.log(type)
       if (type === 'saveAndClose') {
-        // setTimeout(() => {
-        //   if (host === Office.HostType.Outlook)
-        //     Office.context.ui.closeContainer();
-        // }, 3000);
+        setTimeout(() => {
+          if (host === Office.HostType.Outlook)
+            Office.context.ui.closeContainer();
+        }, 3000);
 
       } else {
         console.log(type)
