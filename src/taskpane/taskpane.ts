@@ -22,6 +22,9 @@ import { v4 as uuidv4 } from 'uuid';
 // import { writeFileNamesToOfficeDocument } from "./document";
 const id = uuidv4();
 const accountManager = new AccountManager();
+let userName = ""
+let bookableResourceObjectOFUser:any = {};
+
 let selectedProjectIdTable;
 let selectedProjectTaskIdTable;
 let choiceOptions: any[];
@@ -35,8 +38,8 @@ let pca = undefined;
 let isPCAInitialized = false;
 let token: any;
 
-// let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
-let domain: any = "https://hollis-projectops-dev-01.api.crm4.dynamics.com";
+let domain:any = "https://hollis-projectops-uat-01.crm4.dynamics.com";
+// let domain: any = "https://hollis-projectops-dev-01.api.crm4.dynamics.com";
 // https://hollis-projectops-dev-01.api.crm4.dynamics.com
 
 let options: any[] = [];
@@ -57,6 +60,11 @@ let description: any = document.getElementById("description")
 let descriptionTextarea: any = document.getElementById("descriptionTextarea")
 let DescriptionError: any = document.getElementById("DescriptionError")
 let currentAction = 0;
+
+let mainButton: HTMLElement | null = document.getElementById('mainButton');
+let dropdownToggle: HTMLElement | null = document.getElementById('dropdownToggle');
+let dropdownMenu: HTMLElement | null = document.getElementById('dropdownMenu');
+
 
 
 const MAX_DURATION = 1440;
@@ -94,11 +102,12 @@ let internal: any = document.getElementById("internal")
 
 //Intial buttons positions
 
-client.disabled = true; // Disable the button after click
-internal.disabled = false;
+// client.disabled = true; // Disable the button after click
+// internal.disabled = false;
 
-client.addEventListener('click', () => {
-  console.log("client")
+client.addEventListener('click',async () => {
+  // console.log("client")
+  document.getElementById("dropdownListForProject")!.innerHTML=''
 
   client.classList.add("active", "toggle-btn")
   internal.classList.remove("active");
@@ -106,36 +115,39 @@ client.addEventListener('click', () => {
 
 
   projectType = 'Client'
-
+await fetchProject(token)
   clearProjectandProjectTaskField()
+  
 
   //disabling current button and enabling the other button 
 
-  client.disabled = true; // Disable the button after click
-  internal.disabled = false; // Enable the other button if needed
+  // client.disabled = true; // Disable the button after click
+  // internal.disabled = false; // Enable the other button if needed
 })
 
 
-internal.addEventListener('click', () => {
-  console.log("internal")
+internal.addEventListener('click',async () => {
+  // console.log("internal")
+  document.getElementById("dropdownListForProject")!.innerHTML=''
 
   internal.classList.add("active", "toggle-btn")
   client.classList.remove("active");
   projectType = 'Internal'
 
-
+  await fetchProject(token)
 
   clearProjectandProjectTaskField()
 
+
   //disabling current button and enabling the other button 
 
-  internal.disabled = true; // Disable the button after click
-  client.disabled = false; // Enable the other button if needed
+  // internal.disabled = true; // Disable the button after click
+  // client.disabled = false; // Enable the other button if needed
 
 })
 
 durationDropdown.addEventListener("change", function (event: any) {
-  console.log("User selected:", event.target.value);
+  // console.log("User selected:", event.target.value);
 });
 
 
@@ -186,16 +198,27 @@ const populateProjectTaskList = (filteredKeys: { value: any[]; }) => {
 
 function populateProjectTaskListNew(tasks: any[]) {
   dropdownListTask.innerHTML = ""; // Clear previous tasks
+  if (tasks.length === 0){
+     let div = document.createElement("div");
+    div.textContent = "There are no project tasks available for the selected project.";
+  
+    div.style.fontSize = "12px";
+    div.style.color = "red";
+    dropdownListTask.appendChild(div);
+
+  }
   tasks.forEach((task) => {
     let div = document.createElement("div");
     div.textContent = task.msdyn_subject;
-    div.style.fontSize = "12px";
+    div.style.fontSize = "11px";
     div.style.color = "rgb(84, 84, 84)";
+     div.style.borderBottom = "1px solid lightgrey";
     div.id = `${task.value}`;
     div.onclick = function () {
-      searchInputTask.value = task.msdyn_subject;
+      searchInputTask.value = task. msdyn_subject;
       selectedProjectTaskName = task.msdyn_subject
       dropdownListTask.style.display = "none";
+      
 
       selectedProjectTaskIdNew = task.msdyn_projecttaskid;
     };
@@ -244,7 +267,7 @@ const fetchMatchingProjects = async (searchTerm: any) => {
 
   try {
     const projectsResponse = await fetch(
-      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$filter=contains(msdyn_subject, '${searchTerm}') or contains(ebecs_projectnumber20characters,'${searchTerm}')`,
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$filter=ebecs_internal eq ${projectType === 'Internal'} and contains(msdyn_subject, '${searchTerm}') or contains(ebecs_projectnumber20characters,'${searchTerm}')`,
       {
         method: "GET",
         headers: {
@@ -259,11 +282,11 @@ const fetchMatchingProjects = async (searchTerm: any) => {
     }
 
     const projectsData = await projectsResponse.json();
-    console.log("Filtered projects:", projectsData);
+    // console.log("Filtered projects:", projectsData);
     let newOption: any[] = [];
     let projectnameArray: { [x: number]: any; }[] = [];
-    projectsData.value.forEach((each: { msdyn_projectid: any; msdyn_subject: any; }) => {
-      newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject });
+    projectsData.value.forEach((each: { msdyn_projectid: any; msdyn_subject: any; ebecs_projectnumber20characters:any }) => {
+      newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject, projectNumber: each.ebecs_projectnumber20characters });
       projectnameArray.push({ [each.msdyn_projectid]: each.msdyn_subject });
     });
 
@@ -300,7 +323,11 @@ const fetchMatchingProjects = async (searchTerm: any) => {
   }
 };
 
-searchInputProject.addEventListener("keyup", filterOptionsProject);
+searchInputProject.addEventListener("keyup",()=>{
+  dropdownListTask.innerHTML = ''
+  filterOptionsProject()
+
+} );
 searchInputProject.addEventListener("click", showDropdownProject);
 searchInputProject.addEventListener("focus", () => {
   dropdownListTask.style.display = 'none'
@@ -316,6 +343,7 @@ searchInputTask.addEventListener("focus", () => {
 
 
 document.addEventListener("click", (e) => {
+  
   if (
     !dropdownListProject.contains(e.target) &&
     !searchInputProject.contains(e.target)
@@ -433,6 +461,7 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
     // console.log(response)
     if (response.ok) {
       response = await response.json()
+      // console.log(response)
 
 
       populateProjectTaskListNew(response.value);
@@ -462,24 +491,29 @@ const fetchProjectTasks = async (selectedProjectId: any) => {
 
 
 
+
+
 function populateDropdown(options: any[]) {
   // console.log(options)
   dropdownListProject.innerHTML = "";
   options.forEach((option) => {
     // console.log(option)
     const spanElement = document.createElement('span');
-    spanElement.textContent = `${option.projectNumber}`;
-
+    spanElement.textContent = `${option.projectNumber===null?"N/A":option.projectNumber}`;
+    
+    // option.projectNumber===null && (spanElement.style.color = 'red')
     // Optional styling for the span
     spanElement.style.display = "block";  // Forces it to appear on a new line
     spanElement.style.fontSize = "10px";  // You can adjust this
 
     let div = document.createElement("div");
     div.id = `${option.value}`;
-    div.style.fontSize = "12px";
+    div.style.fontSize = "11px";
     div.style.color = "rgb(84, 84, 84)";
+ div.style.borderBottom = "1px solid lightgrey";
 
     // Add the option text as a text node (on the first line)
+  
     const textNode = document.createTextNode(option.text);
     div.appendChild(textNode);
 
@@ -492,6 +526,7 @@ function populateDropdown(options: any[]) {
       selectedProjectName = option.text
       dropdownListProject.style.display = "none";
       // dropdownListTask.style.display = "none"
+      // console.log(option.value)
       fetchProjectTasks(option.value); // Fetch tasks for selected project
       selectedProjectIdNew = option.value;
       searchInputTask.value = "";
@@ -505,6 +540,7 @@ function populateDropdown(options: any[]) {
 
 
 async function fetchProject(accessToken: any) {
+// console.log(userName)
 
   // console.log("project fetching called")
   // const projects= await fetch(
@@ -525,9 +561,9 @@ async function fetchProject(accessToken: any) {
 
 
   try {
-
+// $filter=_msdyn_project_value eq '${selectedProjectId}'`
     const projectsResponse = await fetch(
-      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$top=20`,
+      `${domain}/api/data/v9.2/msdyn_projects?$select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters,ebecs_internal&$top=20&$filter=ebecs_internal eq ${projectType === 'Internal'} `,
       {
         method: "GET",
         headers: {
@@ -542,7 +578,8 @@ async function fetchProject(accessToken: any) {
 
       projectsData.value.forEach((each: any) => {
         newOption.push({ value: each.msdyn_projectid, text: each.msdyn_subject, projectNumber: each.ebecs_projectnumber20characters });
-        projectnameArray.push({ [each.msdyn_projectid]: each.msdyn_subject });
+        // 
+        // projectnameArray.push({ [each.msdyn_projectid]: each.msdyn_subject });
       });
       options = newOption;
       // console.log(projectnameArray); // Output: [{ id1: "Project 1" }, { id2: "Project 2" }, ...]
@@ -619,9 +656,40 @@ const tokenRequestUserProfile = {
 
 
 
+document.getElementById('insertTimeEntryOfficeApp')!.addEventListener('click',()=>{
+      // console.log('triggered in office')
+      triggerFunction('save')
+    })
+
+
+    document.getElementById('mainButton')!.addEventListener('click',()=>{
+      // console.log('triggered in office')
+      triggerFunction('saveAndClose')
+    })
 
 
 Office.onReady(async (info) => {
+
+  const closeBtn: any = document.getElementById("closePane");
+
+  if (info.host === Office.HostType.Outlook) {
+    
+    document.getElementById('insertTimeEntryOfficeApp')!.style.display='none'
+    
+    closeBtn.addEventListener("click", (): void => {
+
+      // console.log(Office.context.ui);
+      // Office.context.ui.closeContainer()
+    });
+  } else {
+    closeBtn.style.display = 'none'
+    document.getElementById('splitButton')!.style.display='none'
+    document.getElementById('mainButton')!.style.display='none'
+    document.getElementById('dropdownToggle')!.style.display='none'
+    document.getElementById('dropdownMenu')!.style.display='none'
+    // document.getElementById('insertTimeEntryOfficeApp')!.style.display='block'
+  }
+
   host = info.host
 
   //   console.log(Office)
@@ -664,10 +732,40 @@ Office.onReady(async (info) => {
 
       const accessToken2 = await accountManager.ssoGetToken([`${domain}/user_impersonation`]); //Hollis scope
       // console.log("Access token2: ", accessToken2);
-      token = accessToken2
+      const [tokenFromSSO,username] = accessToken2
+      // console.log(username)
+      userName = username
+      token = tokenFromSSO
+      await fetchOptions(tokenFromSSO);
+      await fetchProject(tokenFromSSO)
 
-      await fetchOptions(accessToken2);
-      await fetchProject(accessToken2)
+// $select=msdyn_subject,msdyn_projectid,ebecs_projectnumber20characters&$filter=contains(msdyn_subject, '${searchTerm}') or contains(ebecs_projectnumber20characters,'${searchTerm}')
+
+
+    // _msdyn_organizationalunit_value realted api
+        
+    await fetch(
+        `${domain}/api/data/v9.2/bookableresources?$select=name,_msdyn_organizationalunit_value&$filter=contains(name, '${userName}')`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).then(
+        async (data)=>{
+          // console.log(await data.json())
+          bookableResourceObjectOFUser = await data.json()
+          bookableResourceObjectOFUser = bookableResourceObjectOFUser.value[0]
+          console.log(bookableResourceObjectOFUser,"bookable Resource Object OF User")
+          // if(bookableResourceObjectOFUser === undefined){
+          //   insertError.textContent = "User not identified in the bookable resources. Cannot insert the time entry."
+
+          // }
+
+        }
+      )
+
 
 
       let item: any;
@@ -701,13 +799,13 @@ Office.onReady(async (info) => {
       if (typeof item.subject === "string") {
         // Read mode
         descriptionField.value = item.subject;
-        descriptionField.disabled = true;
+        // descriptionField.disabled = true;
       } else if (typeof item.subject?.getAsync === "function") {
         // Edit mode
         item.subject.getAsync((result: any) => {
           if (result.status === Office.AsyncResultStatus.Succeeded) {
             descriptionField.value = result.value;
-            descriptionField.disabled = true;
+            // descriptionField.disabled = true;
           } else {
             console.error("Failed to fetch subject:", result.error);
           }
@@ -722,7 +820,7 @@ Office.onReady(async (info) => {
         // Read mode
         const formattedStart = item.start.toISOString().split("T")[0];
         eventDateField.value = formattedStart;
-        eventDateField.disabled = true;
+        // eventDateField.disabled = true;
       } else if (typeof item.start?.getAsync === "function") {
         // Edit mode
         item.start.getAsync((result: any) => {
@@ -730,7 +828,7 @@ Office.onReady(async (info) => {
             const startTime = new Date(result.value);
             const formattedStart = startTime.toISOString().split("T")[0];
             eventDateField.value = formattedStart;
-            eventDateField.disabled = true;
+            // eventDateField.disabled = true;
           } else {
             console.error("Failed to fetch start date:", result.error);
           }
@@ -786,24 +884,14 @@ Office.onReady(async (info) => {
 
     if (eventDurationField) {
       getStartEndTime((duration: any) => {
-        eventDurationField.value = duration;
-        eventDurationField.disabled = true;
+        // eventDurationField.value = duration;
+        // eventDurationField.disabled = true;
       });
     }
   }
 
 
-  const closeBtn: any = document.getElementById("closePane");
-
-  if (info.host === Office.HostType.Outlook) {
-    closeBtn.addEventListener("click", (): void => {
-
-      // console.log(Office.context.ui);
-      // Office.context.ui.closeContainer()
-    });
-  } else {
-    closeBtn.style.display = 'none'
-  }
+  
 });
 
 
@@ -863,7 +951,9 @@ const triggerFunction = (type: any) => {
 
 
 const actions: any = {
-  0: () => { },
+  0: () => { 
+     triggerFunction("saveAndClose")
+  },
   1: () => {
     triggerFunction("save")
   },
@@ -877,20 +967,22 @@ const actions: any = {
 
 
 
-const mainButton: HTMLElement | null = document.getElementById('mainButton');
-const dropdownToggle: HTMLElement | null = document.getElementById('dropdownToggle');
-const dropdownMenu: HTMLElement | null = document.getElementById('dropdownMenu');
 
 
-// Toggle dropdown menu
+
 dropdownToggle?.addEventListener('click', (e) => {
   e.stopPropagation(); // Prevent triggering the document click
   const isVisible = dropdownMenu!.style.display === 'block';
   dropdownMenu!.style.display = isVisible ? 'none' : 'block';
 
   if (!isVisible) {
+    dropdownMenu!.style.marginBottom = '16px'; // Add space at bottom
+
     setTimeout(() => {
-      dropdownMenu!.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      dropdownMenu!.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end'
+      });
     }, 50);
   }
 });
@@ -1019,6 +1111,7 @@ async function createFieldValues(type: any) {
   // console.log(result);
   // console.log(selectedProjectName,"selectedProjectName")
   // console.log(selectedProjectTaskName,"selectedProjectTaskName")
+  // console.log(bookableResourceObjectOFUser?._msdyn_organizationalunit_value)
 
   const newEntryPayload = {
     hollis_projecttype: result, // Project Type
@@ -1029,6 +1122,7 @@ async function createFieldValues(type: any) {
     // "msdyn_projectTask@odata.bind": `msdyn_projecttasks(${selectedProjectTaskIdNew})`,
     "msdyn_project@odata.bind": `/msdyn_projects(${selectedProjectIdNew})`,
     "msdyn_projectTask@odata.bind": `/msdyn_projecttasks(${selectedProjectTaskIdNew})`,
+    "hollis_bookableresourceorganisationalunit@odata.bind":`/msdyn_organizationalunits(${bookableResourceObjectOFUser?._msdyn_organizationalunit_value})`,
 
 
     msdyn_date: formattedDate, // Date formatted as ISO 8601
@@ -1068,12 +1162,15 @@ async function createFieldValues(type: any) {
       // console.log(error);
       insertError.style.color = "red";
       insertError.style.fontSize = "10px";
-      insertError.textContent = `"Error Encountered while submitting the data please insert proper data."`;
+    
+      insertError.textContent = bookableResourceObjectOFUser === undefined?`"Sorry, unable to identify the user in Bookable Resources. Please contact your administrator for assistance."
+
+`:`"The operation could not be completed due to missing or invalid data. Please review your input and try again."`;
 
       // Re-enable the button on error
-      const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
-      insertButton.style.pointerEvents = "auto";
-      insertButton.style.opacity = "1";
+      // const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
+      // insertButton.style.pointerEvents = "auto";
+      // insertButton.style.opacity = "1";
 
       throw new Error(`Error creating record: ${response.status} ${response.statusText} - ${errorText}`);
     } else {
@@ -1084,15 +1181,27 @@ async function createFieldValues(type: any) {
       // const insertButton = document.getElementById("insertTimeEntry") as HTMLElement;
       // insertButton.style.pointerEvents = "none";
       // insertButton.style.opacity = "0.5";
-      console.log(type)
+      // console.log(type)
+
+     
+
+       setTimeout(() => {
+         
+          
+            
+            insertError.textContent = ''
+        }, 3000);
+        
       if (type === 'saveAndClose') {
         setTimeout(() => {
           if (host === Office.HostType.Outlook)
+          
+            
             Office.context.ui.closeContainer();
         }, 3000);
 
       } else {
-        console.log(type)
+        // console.log(type)
         dateElement.value = '',
           searchInputProject.value = '',
           searchInputTask.value = '',
@@ -1102,6 +1211,8 @@ async function createFieldValues(type: any) {
           projectType = "Client",
           client.classList.add("active", "toggle-btn")
         internal.classList.remove("active");
+        await fetchProject(token)
+
       }
 
 

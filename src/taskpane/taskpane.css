@@ -164,6 +164,12 @@ input[type='radio']:checked {
     transition: opacity 0.25s ease, background-color 0.25s ease, color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
 }
 
+.ui.button:focus {
+
+  background-color: #FAFAFA;
+    color: var(--primary-color);
+}
+
 h2.ms-font-xl {  
     margin-bottom: 30px;  
     color: #323130;  
@@ -284,20 +290,7 @@ textarea.ms-TextField-field {
     color:rgb(84, 84, 84)
 }
 
-.clear-btn {
-    position: absolute;
-    right: 8px;
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    display: none;
-    color: #888;
-}
 
-.clear-btn:hover {
-    color: #000;
-}
 
 
 
@@ -312,13 +305,14 @@ textarea.ms-TextField-field {
     display: none;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .dropdown-list div {
-    padding: 8px;
+    padding: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
+    padding-left:8px
 }
 
 .dropdown-list div:hover {
@@ -339,8 +333,9 @@ textarea.ms-TextField-field {
     .split-button button {
       padding: 8px 12px;
       font-size: 14px;
-      border: 1px solid #0078d4;
-      background-color: #0078d4;
+      /* border: 1px solid #0078d4; */
+      /* background-color: #0078d4; */
+     
       color: white;
       cursor: pointer;
     }
@@ -361,16 +356,24 @@ textarea.ms-TextField-field {
       display: none;
       min-width: 100%;
       background-color: white;
-      border: 1px solid #ccc;
+      /* border: 1px solid #ccc; */
+      padding-bottom: 16px;
     }
 
     .dropdown-menu button {
       width: 100%;
       padding: 8px 12px;
       border: none;
-      background-color: white;
+      border: 1px solid #ccc;
+       border-bottom: 1px solid lightgray;
+   
       text-align: left;
       color: black;
+       background-color: #FAFAFA;
+    color: var(--primary-color);
+    margin: 0em;
+    padding: 0.8em 1.5em;
+    font-size: 0.75rem;
     }
 
     .dropdown-menu button:hover {

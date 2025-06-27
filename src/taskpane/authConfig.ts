@@ -35,6 +35,8 @@ export let username = "";
 // Encapsulate functions for getting user account and token information.
 class AccountManager {
   pca: IPublicClientApplication | undefined = undefined;
+  
+  public userName:any = '';
 
   // Initialize MSAL public client application.
   async initialize() {
@@ -48,7 +50,9 @@ class AccountManager {
   async ssoGetToken(scopes:any) {
     const userAccount:any = await this.ssoGetUserIdentity(scopes);
     // console.log(userAccount)
-    return userAccount.accessToken;
+    this.userName = userAccount.account.name
+    // console.log(this.userName)
+    return [userAccount.accessToken,this.userName];
   }
 
   /**
